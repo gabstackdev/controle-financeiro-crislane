@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Meu Controle — Finanças pessoais",
+  "short_name": "Meu Controle",
+  "description": "Controle pessoal de receitas, despesas e orçamento mensal.",
+  "lang": "pt-BR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080d0c",
+  "theme_color": "#0b1110",
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b1110" />
+    <meta
+      name="description"
+      content="Controle pessoal de receitas, despesas e orçamento mensal."
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="css/style.css" />
+    <title>Meu Controle — Finanças pessoais</title>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Meu Controle, início">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span
+            ><strong>Meu Controle</strong><small>Finanças pessoais</small></span
+          >
+        </a>
+        <button
+          class="icon-button"
+          id="installButton"
+          hidden
+          aria-label="Instalar aplicativo"
+          title="Instalar aplicativo"
+        >
+          ↓
+        </button>
+      </header>
+
+      <main>
+        <section class="month-row" aria-label="Mês selecionado">
+          <div>
+            <p class="eyebrow">VISÃO GERAL</p>
+            <h1 id="monthHeading">Seu dinheiro, com clareza.</h1>
+          </div>
+
+          <div class="month-picker">
+            <label for="monthPicker" class="sr-only">Selecionar mês</label>
+            <input id="monthPicker" type="month" />
+          </div>
+        </section>
+
+        <section class="summary-grid" aria-label="Resumo financeiro">
+          <article class="summary-card balance-card">
+            <span class="card-label">Saldo do mês</span>
+            <div class="summary-value" id="balanceValue">R$ 0,00</div>
+            <span class="card-foot" id="balanceFoot"
+              >Receitas menos despesas</span
+            >
+          </article>
+          <article class="summary-card">
+            <span class="card-label">Receitas</span>
+            <div class="summary-value positive" id="incomeValue">R$ 0,00</div>
+            <span class="card-foot">Entradas registradas</span>
+          </article>
+          <article class="summary-card">
+            <span class="card-label">Despesas</span>
+            <div class="summary-value negative" id="expenseValue">R$ 0,00</div>
+            <span class="card-foot" id="expenseCount">0 lançamentos</span>
+          </article>
+        </section>
+
+        <section class="panel quick-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">LANÇAMENTO</p>
+              <h2>O que aconteceu?</h2>
+            </div>
+          </div>
+          <div class="quick-actions">
+            <button class="action-button expense-action" id="addExpense">
+              <span aria-hidden="true">−</span> Adicionar despesa
+            </button>
+            <button class="action-button income-action" id="addIncome">
+              <span aria-hidden="true">+</span> Adicionar receita
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">SEU DINHEIRO</p>
+              <h2>Despesas por categoria</h2>
+            </div>
+            <span class="muted small" id="categoryMonthLabel"></span>
+          </div>
+          <div class="chart-layout">
+            <div class="donut-wrap">
+              <canvas
+                id="categoryChart"
+                role="img"
+                aria-label="Gráfico de despesas por categoria"
+              ></canvas>
+              <div class="donut-center">
+                <strong id="donutTotal">R$ 0</strong><span>despesas</span>
+              </div>
+            </div>
+            <div class="legend" id="categoryLegend">
+              <p class="muted">Registre despesas para visualizar o gráfico.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">ACOMPANHAMENTO</p>
+              <h2>Últimos 6 meses</h2>
+            </div>
+            <span class="muted small">Receitas x despesas</span>
+          </div>
+          <div class="bar-chart-wrap">
+            <canvas
+              id="historyChart"
+              role="img"
+              aria-label="Gráfico de receitas e despesas dos últimos seis meses"
+            ></canvas>
+          </div>
+          <p class="chart-note">
+            Os meses sem lançamentos aparecem zerados. O gráfico usa apenas os
+            dados salvos neste navegador.
+          </p>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">HISTÓRICO</p>
+              <h2>Lançamentos do mês</h2>
+            </div>
+            <span class="count-pill" id="transactionCount">0</span>
+          </div>
+          <div class="filters">
+            <label class="search-field"
+              ><span aria-hidden="true">⌕</span
+              ><input
+                id="searchInput"
+                type="search"
+                placeholder="Buscar lançamento"
+                autocomplete="off"
+            /></label>
+            <label class="select-field"
+              ><span class="sr-only">Filtrar por tipo</span>
+              <select id="typeFilter">
+                <option value="all">Todos</option>
+                <option value="expense">Despesas</option>
+                <option value="income">Receitas</option>
+              </select>
+            </label>
+          </div>
+          <div id="transactionList" class="transaction-list">
+            <div class="empty-state">
+              <span class="empty-icon" aria-hidden="true">↗</span
+              ><strong>Nenhum lançamento por aqui</strong>
+              <p>Adicione uma receita ou despesa para começar seu controle.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel compare-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">COMPARAÇÃO</p>
+              <h2>Este mês x mês anterior</h2>
+            </div>
+          </div>
+          <div class="compare-grid">
+            <div>
+              <span class="card-label" id="currentCompareLabel">Mês atual</span
+              ><strong id="currentCompareValue">R$ 0,00</strong>
+            </div>
+            <div>
+              <span class="card-label" id="previousCompareLabel"
+                >Mês anterior</span
+              ><strong id="previousCompareValue">R$ 0,00</strong>
+            </div>
+          </div>
+          <p id="comparisonMessage" class="comparison-message">
+            Registre despesas em dois meses para comparar os resultados.
+          </p>
+        </section>
+
+        <section class="panel tools-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">CONTROLE DOS DADOS</p>
+              <h2>Backup e categorias</h2>
+            </div>
+          </div>
+          <p class="muted">
+            Os dados ficam neste navegador. Exporte um backup regularmente para
+            evitar perder seus registros.
+          </p>
+          <div class="tool-buttons">
+            <button class="secondary-button" id="exportButton">
+              Exportar backup
+            </button>
+            <button class="secondary-button" id="importButton">
+              Importar backup
+            </button>
+            <input
+              id="importFile"
+              type="file"
+              accept="application/json,.json"
+              hidden
+            />
+            <button class="secondary-button" id="manageCategoriesButton">
+              Gerenciar categorias
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav" aria-label="Navegação rápida">
+        <a href="#monthHeading" class="nav-item active"
+          ><span aria-hidden="true">⌂</span><small>Início</small></a
+        >
+        <a href="#transactionList" class="nav-item"
+          ><span aria-hidden="true">≡</span><small>Histórico</small></a
+        >
+        <button class="nav-add" id="navAdd" aria-label="Adicionar lançamento">
+          +
+        </button>
+        <a href="#categoryChart" class="nav-item"
+          ><span aria-hidden="true">◔</span><small>Relatórios</small></a
+        >
+        <a href="#exportButton" class="nav-item"
+          ><span aria-hidden="true">⚙</span><small>Dados</small></a
+        >
+      </nav>
+    </div>
+
+    <dialog id="transactionDialog" class="modal">
+      <form id="transactionForm" method="dialog">
+        <div class="modal-heading">
+          <div>
+            <p class="eyebrow" id="formEyebrow">NOVO LANÇAMENTO</p>
+            <h2 id="formTitle">Adicionar despesa</h2>
+          </div>
+          <button
+            type="button"
+            class="icon-button close-dialog"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+        <input type="hidden" id="transactionId" />
+        <div class="type-toggle" role="group" aria-label="Tipo de lançamento">
+          <button type="button" data-type="expense" class="selected">
+            Despesa
+          </button>
+          <button type="button" data-type="income">Receita</button>
+        </div>
+        <label class="form-label" for="description">Descrição</label>
+        <input
+          id="description"
+          class="form-control"
+          maxlength="90"
+          placeholder="Ex.: compras do mercado"
+          required
+        />
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label" for="amount">Valor (R$)</label
+            ><input
+              id="amount"
+              class="form-control"
+              inputmode="decimal"
+              placeholder="0,00"
+              required
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="transactionDate">Data</label
+            ><input
+              id="transactionDate"
+              type="date"
+              class="form-control"
+              required
+            />
+          </div>
+        </div>
+        <label class="form-label" for="category">Categoria</label>
+        <select id="category" class="form-control" required></select>
+        <label class="form-label" for="notes">Observação (opcional)</label>
+        <textarea
+          id="notes"
+          class="form-control"
+          rows="2"
+          maxlength="240"
+          placeholder="Detalhes adicionais"
+        ></textarea>
+        <p class="form-error" id="formError" role="alert"></p>
+        <div class="modal-actions">
+          <button type="button" class="secondary-button close-dialog">
+            Cancelar</button
+          ><button type="submit" class="primary-button">
+            Salvar lançamento
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="categoriesDialog" class="modal">
+      <form id="categoriesForm" method="dialog">
+        <div class="modal-heading">
+          <div>
+            <p class="eyebrow">PERSONALIZAÇÃO</p>
+            <h2>Minhas categorias</h2>
+          </div>
+          <button
+            type="button"
+            class="icon-button close-dialog"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+        <p class="muted">
+          Adicione categorias para organizar suas receitas e despesas.
+          Categorias já utilizadas não podem ser removidas.
+        </p>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label" for="newCategoryName"
+              >Nome da categoria</label
+            ><input
+              id="newCategoryName"
+              class="form-control"
+              maxlength="35"
+              placeholder="Ex.: Pets"
+            />
+          </div>
+          <div class="form-field">
+            <label class="form-label" for="newCategoryType">Tipo</label
+            ><select id="newCategoryType" class="form-control">
+              <option value="expense">Despesa</option>
+              <option value="income">Receita</option>
+            </select>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="secondary-button full-width"
+          id="addCategoryButton"
+        >
+          Adicionar categoria
+        </button>
+        <div id="categoryManagerList" class="category-manager-list"></div>
+        <div class="modal-actions">
+          <button type="button" class="primary-button close-dialog">
+            Concluir
+          </button>
+        </div>
+      </form>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+      defer
+    ></script>
+    <script src="js/storage.js" defer></script>
+    <script src="js/app.js" defer></script>
+  </body>
+</html>
